@@ -232,7 +232,7 @@ for t in range(T):
         - fibo(n)의 값을 계산하자마자 저장하면 실행시간을 O(n)으로 줄일 수 있음
         
         ```python
-        def fibo(n):
+        def fibo1(n):
             if n >= 2 and len(memo) <= n:
                 memo.append(fibo(n - 1) + fibo(n - 2))
             return memo[n]
@@ -245,4 +245,133 @@ for t in range(T):
 
 # 4. DP
 
+- DP (Dynamic Programming)
+    - 동적 계획 알고리즘은 그리디 알고리즘과 같이 최적화 문제를 해결하는 알고리즘
+    - 먼저 입력 크기가 작은 부분 문제들을 모두 해결한 후에 그 해들을 이용하여 보다 큰 크기의 부분 문제들을 해결하여, 최종적으로 원래 주어진 입력의 문제를 해결하는 알고리즘
+- 피보나치 수 DP 적용 알고리즘
+  
+    ```python
+    def fibo2(n):
+        f = [0, 1]
+        for i in range(2, n + 1):
+            f.append(f[i - 1] + f[i - 2])
+        return f[n]
+    ```
+    
+    - fibo1() : 재귀적, fibo2() : 반복적
+    - 메모이제이션을 재귀적 구조에 사용하는 것보다 반복적 구조로 DP를 구현한 것이 성능 면에서 효율적
+        - 재귀적 구조는 내부에 시스템 호출 스택을 사용하는 오버헤드 발생
+
 # 5. DFS
+
+- 그래프 구조 탐색
+    - 비선형구조인 그래프 구조는 그래프로 표현된 모든 자료를 빠짐없이 검색하는 것이 중요
+    - 두 가지 방법 : 깊이 우선 탐색(Depth First Search, DFS), 너비 우선 탐색(Breadth First Search, BFS)
+- DFS
+    - 시작 정점의 한 방향으로 갈 수 있는 경로가 있는 곳까지 깊이 탐색해 가다가 더 이상 갈 곳이 없게 되면 가장 마지막에 만났던 갈림길 간선이 있는 정점으로 되돌아와서 다른 방향의 정점으로 탐색을 계속 반복하여 결국 모든 정점을 방문하는 순회방법
+    - 가장 마지막에 만났던 갈림길의 정점으로 되돌아가서 다시 깊이 우선 탐색을 반복해야 하므로 후입선출 구조의 스택 사용
+- 과정
+    - visited 배열을 false로 초기화하고 공백 스택을 생성한다.
+    - 시작 정점 v를 결정하여 방문한다.
+    - 정점 v에 인접한 정점 중에서
+        - 방문하지 않은 정점 w가 있으면 정점 v를 스택에 push하고 정점 w를 방문한다. 그리고 w를 v로 하여 반복한다.
+        - 방문하지 않은 정점이 없으면 탐색의 방향을 바꾸기 위해서 스택을 pop하여 받은 가장 마지막 방문 정점을 v로 하여 반복한다.
+    - 스택이 공백이 될 때까지 반복한다.
+- 코드 구현
+    - 반복
+      
+        ```python
+        def dfs(v, N):
+            top = -1
+            print(v)
+            visited[v] = 1
+            while True:
+                for w in adjList[v]:
+                    if visited[v] == 0:
+                        top += 1
+                        stack[top] = v
+                        v = w
+                        print(v)
+                        visited[v] = 1
+                        break
+                    else:
+                        if top != -1:
+                            v = stack[top]
+                            top -= 1
+                        else:
+                            break
+        
+        V, E = map(int, input().split())
+        N = V + 1
+        adjList = [[] for _ in range(N)]
+        for _ in range(E):
+            a, b = map(int, input().split())
+            adjList[a].append(b)
+            adjList[b].append(a)
+        
+        visited = [0] * N
+        stack = [0] * N
+        dfs(1, N)
+        print()
+        ```
+        
+    - 재귀
+      
+        ```python
+        def dfs(v):
+            print(v)
+            visited[v] = 1
+            for w in adjList[v]:
+                if visited[w] == 0:
+                    dfs(v)
+        
+        V, E = map(int, input().split())
+        N = V + 1
+        adjList = [[] for _ in range(N)]
+        for _ in range(E):
+            a, b = map(int, input().split())
+            adjList[a].append(b)
+            adjList[b].append(a)
+        
+        visited = [0] * N
+        stack = [0] * N
+        dfs(1)
+        print()
+        ```
+        
+
+### 5.1. 연습 문제 : DFS
+
+```python
+import sys
+sys.stdin = open('input.txt', 'r') # 1 2 4 6 5 7 3
+
+def dfs(v):
+    stack = [v]
+    print(v, end = ' ')
+    visited[v] = 1
+    
+    while stack:
+        for w in range(1, V + 1):
+            if graph[v][w] == 1 and visited[w] == 0:
+                stack.append(w)
+                v = w
+                print(v, end = ' ')
+                visited[v] = 1
+                break
+        else:
+            stack.pop()
+
+V, E = map(int, input().split())
+temp = list(map(int, input().split()))
+
+graph = [[0] * (V + 1) for _ in range((V + 1))]
+for i in range(0, E * 2, 2):
+    graph[temp[i]][(temp[i + 1])] = 1
+    graph[temp[i + 1]][temp[i]] = 1
+
+visited = [0] * (V + 1)
+
+dfs(1)
+print()
+```
